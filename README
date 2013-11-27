@@ -1,0 +1,66 @@
+C64 Character Set to TrueType Converter
+=======================================
+
+C64TTF.py is a script for converting partial C64 memory dumps, in the form of
+64c-files, into TrueType font files for use on modern operating systems.
+
+Requirements
+------------
+Python 2
+FontTools/TTX
+Numpy
+
+Syntax
+------
+usage: c64ttf.py [-h] [-l LOWERCASE] [-u UPPERCASE] [-o OUTPUT] [-x] [-m]
+                 [-p PIXELSIZE] [-d DESCENT] [-a] [-n NAME] [-y COPYRIGHTYEAR]
+                 [-c CREATOR] [-v VERSION]
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -l LOWERCASE, --lowercase LOWERCASE
+                        Input 64C file with lowercase and uppercase
+                        characters.
+  -u UPPERCASE, --uppercase UPPERCASE
+                        Input 64C file with uppercase and graphics characters.
+  -o OUTPUT, --output OUTPUT
+                        Output filename (default is font name + '.TTF' or
+                        '.TTX')
+  -x, --xml             Enable XML output (for debugging purposes)
+  -m, --add-missing-ascii
+                        Add non-PETSCII characters for ASCII compatibility
+                        (ie. grave accent, curly braces, vertical bar, tilde,
+                        caret, backslash, and underscore)
+  -p PIXELSIZE, --pixelsize PIXELSIZE
+                        Pixel size in the resulting TTF file (default is 256)
+  -d DESCENT, --descent DESCENT
+                        The descent below baseline in pixels (default is 1)
+  -a, --add-all         Inserts the uppercase character set (if any) at
+                        0xEE00...0xEEFF and the lowercase character set (if
+                        any) at 0xEF00...0xEFFF
+  -n NAME, --name NAME  Font name
+  -y COPYRIGHTYEAR, --copyrightyear COPYRIGHTYEAR
+                        Sets copyright year
+  -c CREATOR, --creator CREATOR
+                        Font creator
+  -v VERSION, --version VERSION
+                        Sets font version number
+
+NOTE:
+Both -l and -u are listed as "optional arguments", but obviously at least one
+of them has to be specified.
+
+Example
+-------
+Usable files can be found in the "Character Sets"-section at this page (which
+is not mine by the way):
+http://kofler.dot.at/c64/
+
+Given the input files c64_lower.64c and c64_upper.64c:
+
+./c64ttf.py -l c64_lower.64c -u c64_upper.64c -o c64.ttf -m -a \
+-n "Commodore 64 2" -y 1982 -c Commodore -v "1.00"
+
+This will create a font called "Commodore 64" with all lowercase, uppercase,
+and graphics characters included. Additionally, the missing ASCII characters
+are included as well.
