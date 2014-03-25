@@ -4,6 +4,11 @@ C64 Character Set to TrueType Converter
 C64TTF.py is a script for converting partial C64 memory dumps, in the form of
 64c-files, into TrueType font files for use on modern operating systems.
 
+History
+-------
+1.0 (2013-11-27)  Uploaded initial version to GitHub
+1.1 (2014-03-25)  Fixed the MacRoman CMAP table. Added Danish characters.
+
 Requirements
 ------------
 Python 2
@@ -12,9 +17,11 @@ Numpy
 
 Syntax
 ------
-usage: c64ttf.py [-h] [-l LOWERCASE] [-u UPPERCASE] [-o OUTPUT] [-x] [-m]
+usage: c64ttf.py [-h] [-l LOWERCASE] [-u UPPERCASE] [-o OUTPUT] [-x] [-m] [-i]
                  [-p PIXELSIZE] [-d DESCENT] [-a] [-n NAME] [-y COPYRIGHTYEAR]
                  [-c CREATOR] [-v VERSION]
+
+c64ttf.py v1.0 - C64 Character Set to TrueType Converter (c) 2013-14 atbrask
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -31,6 +38,9 @@ optional arguments:
                         Add non-PETSCII characters for ASCII compatibility
                         (ie. grave accent, curly braces, vertical bar, tilde,
                         caret, backslash, and underscore)
+  -i, --add-missing-danish
+                        Add special Danish characters. Needed for proper
+                        compatibility with the Danish version of MAC OSX.
   -p PIXELSIZE, --pixelsize PIXELSIZE
                         Pixel size in the resulting TTF file (default is 256)
   -d DESCENT, --descent DESCENT

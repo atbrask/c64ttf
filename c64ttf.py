@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 """
 C64 Character Set to TrueType Converter
-Version 1.0
+Version 1.1
 
-Copyright (c) 2013, A.T.Brask (atbrask[at]gmail[dot]com)
+Copyright (c) 2013-2014, A.T.Brask (atbrask[at]gmail[dot]com)
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -37,7 +37,7 @@ import os
 
 from fontTools.ttLib import TTFont, newTable
 from fontTools.ttLib.tables import ttProgram
-from fontTools.ttLib.tables._c_m_a_p import cmap_format_4
+from fontTools.ttLib.tables._c_m_a_p import cmap_format_4, cmap_format_0
 from fontTools.ttLib.tables._h_e_a_d import mac_epoch_diff
 from fontTools.ttLib.tables._g_l_y_f import Glyph
 from fontTools.ttLib.tables.O_S_2f_2 import Panose
@@ -405,8 +405,14 @@ CMAP_MACROMAN = [[0x0, ".null"],
                  [0x7c, "bar"],
                  [0x7d, "braceright"],
                  [0x7e, "asciitilde"],
+                 [0x81, "Aring"],
+                 [0x8c, "aring"],
                  [0xa3, "sterling"],
+                 [0xae, "AE"],
+                 [0xaf, "Oslash"],
                  [0xb9, "pi"],
+                 [0xbe, "ae"],
+                 [0xbf, "oslash"],
                  [0xca, "space"],
                  [0xd3, "quotedblright"],
                  [0xd5, "quoteright"]]
@@ -427,6 +433,64 @@ def makeEmptyGlyphs():
 
     bitmap["nonmarkingreturn"] = [[],[]]
 
+    return bitmap
+
+def makeMissingDanishChars():
+    print "Adding Danish characters..."
+    bitmap = dict()
+    bitmap["ae"] = [[0b00000000,
+                     0b00000000,
+                     0b01110110,
+                     0b00011011,
+                     0b01111111,
+                     0b11011000,
+                     0b01111110,
+                     0b00000000], [0xe6]]
+
+    bitmap["oslash"] = [[0b00000000,
+                         0b00000000,
+                         0b00111011,
+                         0b01101110,
+                         0b01111110,
+                         0b01110110,
+                         0b11011100,
+                         0b00000000], [0xf8]]
+
+    bitmap["aring"] = [[0b00011000,
+                        0b00000000,
+                        0b00111100,
+                        0b00000110,
+                        0b00111110,
+                        0b01100110,
+                        0b00111110,
+                        0b00000000], [0xe5]]
+
+    bitmap["AE"] = [[0b00011111,
+                     0b00111100,
+                     0b01101100,
+                     0b01111111,
+                     0b01101100,
+                     0b01101100,
+                     0b01101111,
+                     0b00000000], [0xc6]]
+
+    bitmap["Oslash"] = [[0b00111011,
+                         0b01101110,
+                         0b01101110,
+                         0b01111110,
+                         0b01110110,
+                         0b01110110,
+                         0b11011100,
+                         0b00000000], [0xd8]]
+
+    bitmap["Aring"] = [[0b00011000,
+                        0b00000000,
+                        0b00111100,
+                        0b01100110,
+                        0b01111110,
+                        0b01100110,
+                        0b01100110,
+                        0b00000000], [0xc5]]
     return bitmap
 
 def makeMissingASCII():
@@ -799,7 +863,8 @@ def makeTable_OS2(ttf, pixelSize, descentPixels, minUnicode, maxUnicode):
 # cmap - Character to Glyph Mapping
 def makeTable_cmap(ttf, glyphs):
     unicodeCMAP = {index: glyph for glyph in glyphs if glyph in ttf["glyf"].glyphs for index in glyphs[glyph][1]}
-    macRomanCMAP = {index: CMAP_MACROMAN[index] if index in CMAP_MACROMAN and CMAP_MACROMAN[index] in ttf["glyf"].glyphs else '.notdef' for index in range(256)}
+    macRoman = dict(CMAP_MACROMAN)
+    macRomanCMAP = {index: macRoman[index] if index in macRoman and macRoman[index] in ttf["glyf"].glyphs else '.notdef' for index in range(256)}
 
     # Unicode
     cmap4_0_3 = cmap_format_4(4)
@@ -809,11 +874,11 @@ def makeTable_cmap(ttf, glyphs):
     cmap4_0_3.cmap = unicodeCMAP
 
     # Mac Roman
-    cmap4_1_0 = cmap_format_4(4)
-    cmap4_1_0.platformID = 1
-    cmap4_1_0.platEncID = 0
-    cmap4_1_0.language = 0
-    cmap4_1_0.cmap = macRomanCMAP
+    cmap0_1_0 = cmap_format_0(0)
+    cmap0_1_0.platformID = 1
+    cmap0_1_0.platEncID = 0
+    cmap0_1_0.language = 0
+    cmap0_1_0.cmap = macRomanCMAP
 
     # Windows
     cmap4_3_1 = cmap_format_4(4)
@@ -824,7 +889,7 @@ def makeTable_cmap(ttf, glyphs):
 
     cmap = newTable("cmap")
     cmap.tableVersion = 0
-    cmap.tables = [cmap4_0_3, cmap4_1_0, cmap4_3_1]
+    cmap.tables = [cmap4_0_3, cmap0_1_0, cmap4_3_1]
     ttf["cmap"] = cmap
 
 # name - Naming Table
@@ -926,7 +991,7 @@ def mapAllGlyphs(existingGlyphs, newGlyphBitmaps, unicodeOffset):
 
     return updates    
 
-def processCharFiles(lowercaseInputFileName, uppercaseInputFileName, outputFileName, asXML, addMissingASCII, pixelSize, descent, addAll, fontName, copyrightYear, creator, version):
+def processCharFiles(lowercaseInputFileName, uppercaseInputFileName, outputFileName, asXML, addMissingASCII, addMissingDanish, pixelSize, descent, addAll, fontName, copyrightYear, creator, version):
     glyphs = makeEmptyGlyphs()
     lowercaseBitmaps = []
     uppercaseBitmaps = []
@@ -942,6 +1007,9 @@ def processCharFiles(lowercaseInputFileName, uppercaseInputFileName, outputFileN
     if addMissingASCII:
         glyphs.update(makeMissingASCII())
 
+    if addMissingDanish:
+        glyphs.update(makeMissingDanishChars())
+
     if addAll:
         glyphs.update(mapAllGlyphs(glyphs, uppercaseBitmaps, 0xee00))
         glyphs.update(mapAllGlyphs(glyphs, lowercaseBitmaps, 0xef00))
@@ -950,7 +1018,7 @@ def processCharFiles(lowercaseInputFileName, uppercaseInputFileName, outputFileN
 
 # "static void main()"
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="c64ttf.py v1.0 - C64 Character Set to TrueType Converter (c) 2013 atbrask")
+    parser = argparse.ArgumentParser(description="c64ttf.py v1.1 - C64 Character Set to TrueType Converter (c) 2013-14 atbrask")
     
     # Files
     parser.add_argument("-l", "--lowercase", help="Input 64C file with lowercase and uppercase characters.")
@@ -958,6 +1026,7 @@ if __name__ == "__main__":
     parser.add_argument("-o", "--output", help="Output filename (default is font name + '.TTF' or '.TTX')")
     parser.add_argument("-x", "--xml", help="Enable XML output (for debugging purposes)", action="store_true")
     parser.add_argument("-m", "--add-missing-ascii", help="Add non-PETSCII characters for ASCII compatibility (ie. grave accent, curly braces, vertical bar, tilde, caret, backslash, and underscore)", action="store_true")
+    parser.add_argument("-i", "--add-missing-danish", help="Add special Danish characters. Needed for proper compatibility with the Danish version of MAC OSX.", action="store_true")
 
     # Vectorization
     parser.add_argument("-p", "--pixelsize", help="Pixel size in the resulting TTF file (default is 256)", default=256)
@@ -989,4 +1058,4 @@ if __name__ == "__main__":
         else:
             outputFileName = fontName + ".ttf"
 
-    processCharFiles(args.lowercase, args.uppercase, outputFileName, args.xml, args.add_missing_ascii, int(args.pixelsize), int(args.descent), args.add_all, fontName, int(args.copyrightyear), args.creator, args.version)
+    processCharFiles(args.lowercase, args.uppercase, outputFileName, args.xml, args.add_missing_ascii, args.add_missing_danish, int(args.pixelsize), int(args.descent), args.add_all, fontName, int(args.copyrightyear), args.creator, args.version)
