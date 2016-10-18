@@ -8,12 +8,12 @@ History
 -------
 1.0 (2013-11-27)  Uploaded initial version to GitHub
 1.1 (2014-03-25)  Fixed the MacRoman CMAP table. Added Danish characters.
+1.2 (2016-10-18)  Fixed glyph order. Removed Numpy dependency.
 
 Requirements
 ------------
 Python 2
 FontTools/TTX
-Numpy
 
 Syntax
 ------
@@ -69,7 +69,7 @@ http://kofler.dot.at/c64/
 Given the input files c64_lower.64c and c64_upper.64c:
 
 ./c64ttf.py -l c64_lower.64c -u c64_upper.64c -o c64.ttf -m -a \
--n "Commodore 64 2" -y 1982 -c Commodore -v "1.00"
+-n "Commodore 64" -y 1982 -c Commodore -v "1.00"
 
 This will create a font called "Commodore 64" with all lowercase, uppercase,
 and graphics characters included. Additionally, the missing ASCII characters

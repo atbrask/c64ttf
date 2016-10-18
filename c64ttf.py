@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 """
 C64 Character Set to TrueType Converter
-Version 1.1
+Version 1.2
 
-Copyright (c) 2013-2014, A.T.Brask (atbrask[at]gmail[dot]com)
+Copyright (c) 2013-2016, A.T.Brask (atbrask[at]gmail[dot]com)
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -32,14 +32,14 @@ from datetime import date
 import getpass
 import math
 import time
-import numpy
+import array
 import os
 
 from fontTools.ttLib import TTFont, newTable
 from fontTools.ttLib.tables import ttProgram
 from fontTools.ttLib.tables._c_m_a_p import cmap_format_4, cmap_format_0
 from fontTools.ttLib.tables._h_e_a_d import mac_epoch_diff
-from fontTools.ttLib.tables._g_l_y_f import Glyph
+from fontTools.ttLib.tables._g_l_y_f import Glyph, GlyphCoordinates
 from fontTools.ttLib.tables.O_S_2f_2 import Panose
 from fontTools.ttLib.tables._n_a_m_e import NameRecord
 
@@ -696,15 +696,19 @@ def makeTable_glyf(ttf, glyphs):
     glyf = newTable("glyf")
 
     glyf.glyphs = {glyph: makeTTFGlyph(glyphs[glyph][0]) for glyph in glyphs}
-    glyf.glyphOrder = sorted(glyf.glyphs.keys())
+
+    # We need to sort the glyphs in a specific way (so all basic glyphs are below index 256) to work around a MacRoman related quirk.
+    glyf.glyphOrder = sorted([key for key in glyf.glyphs.keys() if not key.startswith('uni')])
+    glyf.glyphOrder += sorted([key for key in glyf.glyphs.keys() if key.startswith('uni')])
+
     ttf["glyf"] = glyf
     ttf.glyphOrder = glyf.glyphOrder
 
 def makeTTFGlyph(polygons):
     result = Glyph()
     result.numberOfContours = len(polygons)
-    result.coordinates = numpy.array([coordinate for polygon in polygons for coordinate in polygon])
-    result.flags = numpy.array([1] * len(result.coordinates), numpy.int8)
+    result.coordinates = GlyphCoordinates([coordinate for polygon in polygons for coordinate in polygon])
+    result.flags = array.array("B", [1] * len(result.coordinates))
     result.endPtsOfContours = [sum(len(polygon) for polygon in polygons[:idx + 1]) - 1 for idx in range(len(polygons))]
     result.program = ttProgram.Program()
     result.program.assembly = []
