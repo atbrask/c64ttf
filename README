@@ -9,11 +9,12 @@ History
 1.0 (2013-11-27)  Uploaded initial version to GitHub
 1.1 (2014-03-25)  Fixed the MacRoman CMAP table. Added Danish characters.
 1.2 (2016-10-18)  Fixed glyph order. Removed Numpy dependency.
+1.3 (2020-05-16)  Ported to Python 3.
 
 Requirements
 ------------
-Python 2
-FontTools/TTX
+Python 3
+FontTools/TTX (use pip3 for this)
 
 Syntax
 ------
@@ -21,7 +22,7 @@ usage: c64ttf.py [-h] [-l LOWERCASE] [-u UPPERCASE] [-o OUTPUT] [-x] [-m] [-i]
                  [-p PIXELSIZE] [-d DESCENT] [-a] [-n NAME] [-y COPYRIGHTYEAR]
                  [-c CREATOR] [-v VERSION]
 
-c64ttf.py v1.0 - C64 Character Set to TrueType Converter (c) 2013-14 atbrask
+c64ttf.py v1.3 - C64 Character Set to TrueType Converter (c) 2013-20 atbrask
 
 optional arguments:
   -h, --help            show this help message and exit

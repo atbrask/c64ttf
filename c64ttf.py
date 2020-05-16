@@ -1,9 +1,9 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 C64 Character Set to TrueType Converter
-Version 1.2
+Version 1.3
 
-Copyright (c) 2013-2016, A.T.Brask (atbrask[at]gmail[dot]com)
+Copyright (c) 2013-2020, A.T.Brask (atbrask[at]gmail[dot]com)
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -436,7 +436,7 @@ def makeEmptyGlyphs():
     return bitmap
 
 def makeMissingDanishChars():
-    print "Adding Danish characters..."
+    print("Adding Danish characters...")
     bitmap = dict()
     bitmap["ae"] = [[0b00000000,
                      0b00000000,
@@ -494,7 +494,7 @@ def makeMissingDanishChars():
     return bitmap
 
 def makeMissingASCII():
-    print "Adding the 8 missing ASCII characters in C64 PETSCII..."
+    print("Adding the 8 missing ASCII characters in C64 PETSCII...")
     bitmap = dict()
 
     # Grave accent
@@ -685,7 +685,7 @@ def saveFont(glyphs, outputFileName, asXML, pixelSize, descent, fontName, copyri
         f["cmap"].compile(f)
         f["name"].compile(f)
         f["post"].compile(f)
-        print "PLEASE NOTE: When exporting directly to XML, the checkSumAdjustment value in the head table will be 0."
+        print("PLEASE NOTE: When exporting directly to XML, the checkSumAdjustment value in the head table will be 0.")
         f.saveXML(outputFileName)
     else:
         f.save(outputFileName)
@@ -751,8 +751,8 @@ def makeTable_head(ttf):
     head.magicNumber = 0x5F0F3CF5
     head.flags = 11               # bits 0, 1, and 3 = 1 + 2 + 8 = 11
     head.unitsPerEm = 2048
-    head.created = long(time.time() - mac_epoch_diff)
-    head.modified = long(time.time() - mac_epoch_diff)
+    head.created = int(time.time() - mac_epoch_diff)
+    head.modified = int(time.time() - mac_epoch_diff)
     head.xMin = 0                 # Auto-calculated by maxp.compile()
     head.xMax = 0                 # Auto-calculated by maxp.compile()
     head.yMin = 0                 # Auto-calculated by maxp.compile()
@@ -819,15 +819,15 @@ def makeTable_OS2(ttf, pixelSize, descentPixels, minUnicode, maxUnicode):
     os_2.usWidthClass = 5         # Meaing "Medium (normal)"
     os_2.fsType = 0               # Windows-only licensing bits...
     os_2.ySubscriptXSize = size
-    os_2.ySubscriptYSize = size / 2
+    os_2.ySubscriptYSize = size >> 1
     os_2.ySubscriptXOffset = 0
     os_2.ySubscriptYOffset = descent
-    os_2.ySuperscriptXSize = size / 2
-    os_2.ySuperscriptYSize = size / 2
+    os_2.ySuperscriptXSize = size >> 1
+    os_2.ySuperscriptYSize = size >> 1
     os_2.ySuperscriptXOffset = 0
-    os_2.ySuperscriptYOffset = size / 2
+    os_2.ySuperscriptYOffset = size >> 1
     os_2.yStrikeoutSize = pixelSize
-    os_2.yStrikeoutPosition = size / 2 - descent
+    os_2.yStrikeoutPosition = (size >> 1) - descent
     os_2.sFamilyClass = 0x080a    # Class ID = 8 (Sans Serif), Subclass ID = 10 (Matrix)
     panose = Panose()
     panose.bFamilyType = 2        # Text and Display
@@ -921,7 +921,7 @@ def makeNameRecord(nameID, string, platformID, platEncID, langID, encoding):
     rec.platformID = platformID
     rec.platEncID = platEncID
     rec.langID = langID
-    rec.string = unicode(string, "utf8").encode(encoding)
+    rec.string = str(string).encode(encoding)
     return rec
 
 # post - Postscript Information
@@ -950,8 +950,8 @@ def readCharBitmaps(fileName):
     if fileName is None:
         return []
 
-    print "Processing input file {0}...".format(fileName)
-    data = [ord(b) for b in open(fileName).read()]
+    print("Processing input file {0}...".format(fileName))
+    data = open(fileName, "rb").read()
 
     # Shave off magic bytes and append zeroes so the length of the remaining
     # data is an integer multiple of 8.
@@ -960,13 +960,13 @@ def readCharBitmaps(fileName):
         data.append(0)
 
     if len(data) == 0:
-        print "No data found. "
+        print("No data found. ")
         return []
     elif len(data) > 2048:
-        print "More than 256 chars detected. Are you sure this is a C64 character set???"
+        print("More than 256 chars detected. Are you sure this is a C64 character set???")
         return []
     else:
-        print "{0} glyphs loaded...".format(len(data) / 8)
+        print("{0} glyphs loaded...".format(int(len(data) / 8)))
         return [data[idx:idx + 8] for idx in range(0, len(data), 8)]
 
 def mapGlyphs(glyphData, charset):
@@ -1022,7 +1022,7 @@ def processCharFiles(lowercaseInputFileName, uppercaseInputFileName, outputFileN
 
 # "static void main()"
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="c64ttf.py v1.1 - C64 Character Set to TrueType Converter (c) 2013-14 atbrask")
+    parser = argparse.ArgumentParser(description="c64ttf.py v1.3 - C64 Character Set to TrueType Converter (c) 2013-20 atbrask")
     
     # Files
     parser.add_argument("-l", "--lowercase", help="Input 64C file with lowercase and uppercase characters.")
@@ -1047,8 +1047,8 @@ if __name__ == "__main__":
 
     if args.lowercase is None and args.uppercase is None:
         parser.print_help()
-        print ""
-        print "No input files! Aborting..."
+        print("")
+        print("No input files! Aborting...")
         exit(1)
 
     fontName = args.name
