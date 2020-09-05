@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 C64 Character Set to TrueType Converter
-Version 1.3
+Version 1.4
 
 Copyright (c) 2013-2020, A.T.Brask (atbrask[at]gmail[dot]com)
 All rights reserved.
@@ -902,7 +902,7 @@ def makeTable_name(ttf, fontName, subFamily, copyrightYear, creator, version):
     fullName = "{0} {1}".format(fontName, subFamily)
     uniqueID = "{0} {1}".format(creator, fullName)
     versionText = "Version {0}".format(version)
-    psFontName = "{0}-{1}".format("".join([b for b in fontName if 32 < ord(b) < 127]), creator)
+    psFontName = "".join([b for b in "{0}-{1}".format(fontName, creator) if 32 < ord(b) < 127 and b not in '[](){}<>/%'])[:63]
     nameEntries = [copyright, fontName, subFamily, uniqueID, fullName, versionText, psFontName]
 
     unicodeEnc = [0, 3, 0, "utf_16_be"]
@@ -1022,7 +1022,7 @@ def processCharFiles(lowercaseInputFileName, uppercaseInputFileName, outputFileN
 
 # "static void main()"
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="c64ttf.py v1.3 - C64 Character Set to TrueType Converter (c) 2013-20 atbrask")
+    parser = argparse.ArgumentParser(description="c64ttf.py v1.4 - C64 Character Set to TrueType Converter (c) 2013-20 atbrask")
     
     # Files
     parser.add_argument("-l", "--lowercase", help="Input 64C file with lowercase and uppercase characters.")
